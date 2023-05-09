@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Roast Meter</title>
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/9.21.0/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/9.21.0/firebase-auth-compat.js"></script>
+    <script
+      defer
+      src="/__/firebase/9.21.0/firebase-database-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.21.0/firebase-firestore-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.21.0/firebase-functions-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.21.0/firebase-messaging-compat.js"
+    ></script>
+    <script defer src="/__/firebase/9.21.0/firebase-storage-compat.js"></script>
+    <script
+      defer
+      src="/__/firebase/9.21.0/firebase-analytics-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.21.0/firebase-remote-config-compat.js"
+    ></script>
+    <script
+      defer
+      src="/__/firebase/9.21.0/firebase-performance-compat.js"
+    ></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+
+    <style>
+      .prevent-select {
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
+      }
+    </style>
+  </head>
+  <body>
+    <section class="hero is-warning is-fullheight" id="connectPage">
+      <div class="hero-body prevent-select" onclick="onButtonClick()">
+        <div class="">
+          <p class="title">Roast Meter App v0.1</p>
+          <p class="subtitle">Click Here to Connect</p>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="hero is-link is-fullheight"
+      id="samplingPage"
+      style="display: none"
+    >
+      <div class="hero-body">
+        <div class="">
+          <p class="title" id="agtron"></p>
+          <p class="subtitle" id="particle"></p>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="hero is-info is-fullheight"
+      id="loadSamplePage"
+      style="display: none"
+    >
+      <div class="hero-body">
+        <div class="">
+          <p class="title">Please Load Your Sample!</p>
+          <p class="subtitle"></p>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="hero is-danger is-fullheight"
+      id="reconnectPage"
+      style="display: none"
+    >
+      <div class="hero-body">
+        <div class="">
+          <p class="title">Reconnecting</p>
+          <p class="subtitle">Roast Meter is going behind the moon!</p>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      var bluetoothDevice;
+      var connectPage;
+      var samplingPage;
+      var loadSamplePage;
+      var reconnectPage;
+      var agtron;
+      var particle;
+
+      function onButtonClick() {
+        connectPage = document.getElementById("connectPage");
+        samplingPage = document.getElementById("samplingPage");
+        loadSamplePage = document.getElementById("loadSamplePage");
+        reconnectPage = document.getElementById("reconnectPage");
+        agtron = document.getElementById("agtron");
+        particle = document.getElementById("particle");
+
+        bluetoothDevice = null;
+        console.log("Requesting any Bluetooth Device...");
+        navigator.bluetooth
+          .requestDevice({
+            filters: [{ services: ["875a0ee0-03dd-4225-ae06-35e8ae92b84c"] }],
+          })
+          .then((device) => {
+            bluetoothDevice = device;
+            bluetoothDevice.addEventListener(
+              "gattserverdisconnected",
+              onDisconnected
+            );
+            connect();
+          })
+          .catch((error) => {
+            console.log("Argh! " + error);
+          });
+      }
+
+      function handleAgtronChanged(event) {
+        let agtronLevel = event.target.value.getUint8(0);
+        agtron.innerHTML = "Agtron: " + agtronLevel;
+        console.log("> Agtron is " + agtronLevel);
+
+        if (agtronLevel > 0) {
+          connectPage.style.display = "none";
+          loadSamplePage.style.display = "none";
+          samplingPage.style.display = "flex";
+          reconnectPage.style.display = "none";
+        } else {
+          connectPage.style.display = "none";
+          loadSamplePage.style.display = "flex";
+          samplingPage.style.display = "none";
+          reconnectPage.style.display = "none";
+        }
+      }
+
+      function handleParticleSensorChanged(event) {
+        try {
+          let particleLevel = event.target.value.getUint(0);
+          particle.innerHTML = "Raw IR: " + particleLevel;
+          console.log("> Particle is " + particleLevel);
+        } catch (error) {
+          alert(error);
+        }
+      }
+
+      function connect() {
+        exponentialBackoff(
+          3 /* max retries */,
+          2 /* seconds delay */,
+          function toTry() {
+            time("Connecting to Bluetooth Device... ");
+            return bluetoothDevice.gatt.connect();
+          },
+          function success() {
+            connectPage.style.display = "none";
+            loadSamplePage.style.display = "flex";
+            samplingPage.style.display = "none";
+            reconnectPage.style.display = "none";
+
+            console.log("> Bluetooth Device connected.");
+
+            bluetoothDevice.gatt
+              .connect()
+              .then((server) => {
+                console.log("Getting Roast Meter Service...");
+                return server.getPrimaryService(
+                  "875a0ee0-03dd-4225-ae06-35e8ae92b84c"
+                );
+              })
+              .then((service) => {
+                console.log("Getting Agtron Characteristic...");
+                service
+                  .getCharacteristic("ce216811-0ad9-4aff-ae29-8b171093a95f")
+                  .then((agtronCharacteristic) => {
+                    agtronCharacteristic.startNotifications().then((_) => {
+                      agtronCharacteristic.addEventListener(
+                        "characteristicvaluechanged",
+                        handleAgtronChanged
+                      );
+                    });
+                  });
+              })
+              .catch((error) => {
+                alert(error);
+                console.log("Argh! " + error);
+              });
+          },
+
+          function fail() {
+            connectPage.style.display = "flex";
+            loadSamplePage.style.display = "none";
+            samplingPage.style.display = "none";
+            reconnectPage.style.display = "none";
+
+            time("Failed to reconnect.");
+          }
+        );
+      }
+
+      function onDisconnected() {
+        connectPage.style.display = "none";
+        loadSamplePage.style.display = "none";
+        samplingPage.style.display = "none";
+        reconnectPage.style.display = "flex";
+        console.log("> Bluetooth Device disconnected");
+        connect();
+      }
+
+      /* Utils */
+
+      // This function keeps calling "toTry" until promise resolves or has
+      // retried "max" number of times. First retry has a delay of "delay" seconds.
+      // "success" is called upon success.
+      function exponentialBackoff(max, delay, toTry, success, fail) {
+        toTry()
+          .then((result) => success(result))
+          .catch((_) => {
+            if (max === 0) {
+              return fail();
+            }
+            time("Retrying in " + delay + "s... (" + max + " tries left)");
+            setTimeout(function () {
+              exponentialBackoff(--max, delay * 2, toTry, success, fail);
+            }, delay * 1000);
+          });
+      }
+
+      function time(text) {
+        console.log("[" + new Date().toJSON().substr(11, 8) + "] " + text);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const loadEl = document.querySelector("#load");
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        // // The Firebase SDK is initialized and available here!
+        //
+        // firebase.auth().onAuthStateChanged(user => { });
+        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+        // firebase.firestore().doc('/foo/bar').get().then(() => { });
+        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
+        // firebase.messaging().requestPermission().then(() => { });
+        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+        firebase.analytics(); // call to activate
+        firebase.analytics().logEvent("tutorial_completed");
+        firebase.performance(); // call to activate
+        //
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+        try {
+          let app = firebase.app();
+          let features = [
+            "auth",
+            "database",
+            "firestore",
+            "functions",
+            "messaging",
+            "storage",
+            "analytics",
+            "remoteConfig",
+            "performance",
+          ].filter((feature) => typeof app[feature] === "function");
+          loadEl.textContent = `Firebase SDK loaded with ${features.join(
+            ", "
+          )}`;
+        } catch (e) {
+          console.error(e);
+          loadEl.textContent =
+            "Error loading the Firebase SDK, check the console.";
+        }
+      });
+    </script>
+  </body>
+</html>
