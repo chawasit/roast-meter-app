@@ -162,7 +162,7 @@
 
       function handleParticleSensorChanged(event) {
         try {
-          let particleLevel = event.target.value.getUint(0);
+          let particleLevel = event.target.value.getUint32(0);
           particle.innerHTML = "Raw IR: " + particleLevel;
           console.log("> Particle is " + particleLevel);
         } catch (error) {
@@ -203,6 +203,16 @@
                       agtronCharacteristic.addEventListener(
                         "characteristicvaluechanged",
                         handleAgtronChanged
+                      );
+                    });
+                  });
+                service
+                  .getCharacteristic("c32afdba-e9f2-453e-9612-85fbf4108ab2")
+                  .then((agtronCharacteristic) => {
+                    agtronCharacteristic.startNotifications().then((_) => {
+                      agtronCharacteristic.addEventListener(
+                        "characteristicvaluechanged",
+                        handleParticleSensorChanged
                       );
                     });
                   });
