@@ -16,7 +16,7 @@ const agtronScale = computed(() => {
 })
 
 const agtronScaleDescription = computed(() => {
-  if (meterStore.particleSensor == 0) return "Please load your Sample."
+  if (meterStore.agtron == 0) return "Please load your Sample."
 
   if (meterStore.agtron <= 30) return "SCAA: Very Dark (Italian)"
   if (meterStore.agtron < 40) return "SCAA: Dark (French)"

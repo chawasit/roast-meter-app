@@ -11,10 +11,10 @@ export const useMeterStore = defineStore('roastMeter', () => {
   const agtron = ref<number>(0)
   const particleSensor = ref<number>(0)
 
-  const ledBrightnessLevel = ref<undefined | number>()
-  const intersectionPoint = ref<undefined | number>()
-  const deviation = ref<undefined | number>()
-  const bleName = ref<undefined | string>()
+  const ledBrightnessLevel = ref<number>(34)
+  const intersectionPoint = ref<number>(117)
+  const deviation = ref<number>(0.165)
+  const bleName = ref<string>('Roast Meter')
 
   const isGettingMeterReading = ref(false)
   const isGettingMeterSetting = ref(false)
