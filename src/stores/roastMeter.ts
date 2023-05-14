@@ -2,19 +2,32 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { pausableWatch, useBluetooth } from '@vueuse/core'
 
+const UUID_ROAST_METER_SERVICE = '875a0ee0-03dd-4225-ae06-35e8ae92b84c'
+const UUID_SETTING_SERVICE = '59021473-dfc6-425a-9729-09310ebe535e'
+
+const UUID_AGTRON = 'ce216811-0ad9-4aff-ae29-8b171093a95f'
+const UUID_PARTICLE_SENSOR = 'c32afdba-e9f2-453e-9612-85fbf4108ab2'
+const UUID_METER_STATE = '8ace2828-996f-48e4-8e9c-8284678b4b57'
+
+const UUID_LED_BRIGHTNESS_LEVEL = '8313695f-3ea1-458b-bd2a-df4aee218514'
+const UUID_INTERSECTION_POINT = '69548c4b-87d0-4e3e-ac6c-b143c7b2ab30'
+const UUID_DEVIATION = 'd17234fa-0f48-429a-9e9b-f5db774ef682'
+const UUID_BLE_NAME = 'cde44fd7-4c1e-42a0-8368-531dc87f6b56'
+
 export const useMeterStore = defineStore('roastMeter', () => {
   const { isConnected, server, requestDevice } = useBluetooth({
-    filters: [{ services: ['875a0ee0-03dd-4225-ae06-35e8ae92b84c'] }],
-    optionalServices: ['59021473-dfc6-425a-9729-09310ebe535e']
+    filters: [{ services: [UUID_ROAST_METER_SERVICE] }],
+    optionalServices: [UUID_SETTING_SERVICE]
   })
 
   const agtron = ref<number>(0)
   const particleSensor = ref<number>(0)
+  const meterState = ref<number>(0) // 0 setup, 1 warmup, 2 ready, 3 measured
 
-  const ledBrightnessLevel = ref<number>(34)
-  const intersectionPoint = ref<number>(117)
-  const deviation = ref<number>(0.165)
-  const bleName = ref<string>('Roast Meter')
+  const ledBrightnessLevel = ref<number>(0)
+  const intersectionPoint = ref<number>(0)
+  const deviation = ref<number>(0)
+  const bleName = ref<string>('Roast Meter xxxx')
 
   const isGettingMeterReading = ref(false)
   const isGettingMeterSetting = ref(false)
@@ -28,20 +41,16 @@ export const useMeterStore = defineStore('roastMeter', () => {
     isGettingMeterReading.value = true
 
     // Get the battery service:
-    const meterService = await server.value.getPrimaryService(
-      '875a0ee0-03dd-4225-ae06-35e8ae92b84c'
-    )
+    const meterService = await server.value.getPrimaryService(UUID_ROAST_METER_SERVICE)
 
     // Get the current battery level
-    const agtronCharacteristic = await meterService.getCharacteristic(
-      'ce216811-0ad9-4aff-ae29-8b171093a95f'
-    )
-    const particleCharacteristic = await meterService.getCharacteristic(
-      'c32afdba-e9f2-453e-9612-85fbf4108ab2'
-    )
+    const agtronCharacteristic = await meterService.getCharacteristic(UUID_AGTRON)
+    const particleCharacteristic = await meterService.getCharacteristic(UUID_PARTICLE_SENSOR)
+    const meterStateCharacteristic = await meterService.getCharacteristic(UUID_METER_STATE)
 
     await agtronCharacteristic.startNotifications()
     await particleCharacteristic.startNotifications()
+    await meterStateCharacteristic.startNotifications()
 
     // Listen to when characteristic value changes on `characteristicvaluechanged` event:
     agtronCharacteristic.addEventListener('characteristicvaluechanged', (event: any) => {
@@ -52,12 +61,18 @@ export const useMeterStore = defineStore('roastMeter', () => {
       particleSensor.value = event.target.value.getUint32(0)
     })
 
+    meterStateCharacteristic.addEventListener('characteristicvaluechanged', (event: any) => {
+      meterState.value = event.target.value.getUint8(0)
+    })
+
     // Convert received buffer to number:
     const agtronValue = await agtronCharacteristic.readValue()
     const particleSensorValue = await particleCharacteristic.readValue()
+    const meterStateValue = await meterStateCharacteristic.readValue()
 
     agtron.value = agtronValue.getUint8(0)
     particleSensor.value = particleSensorValue.getUint32(0)
+    meterStateValue.value = meterStateValue.getUint8(0)
   }
 
   async function getMeterSetting() {
@@ -76,24 +91,18 @@ export const useMeterStore = defineStore('roastMeter', () => {
 
     // Get the battery service:
     console.log('getting setting service')
-    const meterSettingService = await server.value.getPrimaryService(
-      '59021473-dfc6-425a-9729-09310ebe535e'
-    )
+    const meterSettingService = await server.value.getPrimaryService(UUID_SETTING_SERVICE)
 
     console.log('getting setting characteristics')
     // Get the current battery level
     const ledBrightnessCharacteristic = await meterSettingService.getCharacteristic(
-      '8313695f-3ea1-458b-bd2a-df4aee218514'
+      UUID_LED_BRIGHTNESS_LEVEL
     )
     const intersectionPointCharacteristic = await meterSettingService.getCharacteristic(
-      '69548c4b-87d0-4e3e-ac6c-b143c7b2ab30'
+      UUID_INTERSECTION_POINT
     )
-    const deviationCharacteristic = await meterSettingService.getCharacteristic(
-      'd17234fa-0f48-429a-9e9b-f5db774ef682'
-    )
-    const bleNameCharacteristic = await meterSettingService.getCharacteristic(
-      'cde44fd7-4c1e-42a0-8368-531dc87f6b56'
-    )
+    const deviationCharacteristic = await meterSettingService.getCharacteristic(UUID_DEVIATION)
+    const bleNameCharacteristic = await meterSettingService.getCharacteristic(UUID_BLE_NAME)
 
     // Convert received buffer to number:
     const ledBrightnessValue = await ledBrightnessCharacteristic.readValue()
@@ -120,24 +129,18 @@ export const useMeterStore = defineStore('roastMeter', () => {
 
     // Get the battery service:
     console.log('getting setting service')
-    const meterSettingService = await server.value.getPrimaryService(
-      '59021473-dfc6-425a-9729-09310ebe535e'
-    )
+    const meterSettingService = await server.value.getPrimaryService(UUID_SETTING_SERVICE)
 
     console.log('getting setting characteristics')
     // Get the current battery level
     const ledBrightnessCharacteristic = await meterSettingService.getCharacteristic(
-      '8313695f-3ea1-458b-bd2a-df4aee218514'
+      UUID_LED_BRIGHTNESS_LEVEL
     )
     const intersectionPointCharacteristic = await meterSettingService.getCharacteristic(
-      '69548c4b-87d0-4e3e-ac6c-b143c7b2ab30'
+      UUID_INTERSECTION_POINT
     )
-    const deviationCharacteristic = await meterSettingService.getCharacteristic(
-      'd17234fa-0f48-429a-9e9b-f5db774ef682'
-    )
-    const bleNameCharacteristic = await meterSettingService.getCharacteristic(
-      'cde44fd7-4c1e-42a0-8368-531dc87f6b56'
-    )
+    const deviationCharacteristic = await meterSettingService.getCharacteristic(UUID_DEVIATION)
+    const bleNameCharacteristic = await meterSettingService.getCharacteristic(UUID_BLE_NAME)
 
     console.log('writing setting characteristics')
     let buffer = new ArrayBuffer(1)
@@ -184,6 +187,7 @@ export const useMeterStore = defineStore('roastMeter', () => {
     reset,
     agtron,
     particleSensor,
+    meterState,
     ledBrightnessLevel,
     intersectionPoint,
     deviation,

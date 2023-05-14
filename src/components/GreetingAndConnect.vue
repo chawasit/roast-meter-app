@@ -7,10 +7,10 @@ const meterStore = useMeterStore();
 <template>
   <div class="container">
     <h1 class="title is-2">
-      Roast Meter
+      Agtron
     </h1>
     <h2 class="subtitle is-4">
-      Agtron: Where data and consistency meet, creating the perfect roasted coffee.
+      Where data and consistency meet, creating the perfect roasted coffee.
     </h2>
     <br>
     <p class="">

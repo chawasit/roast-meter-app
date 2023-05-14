@@ -35,7 +35,34 @@ const agtronScaleDescription = computed(() => {
   <div class="container is-fluid">
     <div class="columns is-vcentered">
       <div class="column is-5 ">
-        <div class="has-text-centered">
+        <div class="has-text-centered" v-if="meterStore.meterState == 0">
+          <h1 class="title is-2">
+            Setting Up!
+          </h1>
+          <h2 class="subtitle is-4 has-text-grey-light">
+            Preparing liquid oxygen.
+          </h2>
+        </div>
+
+        <div class="has-text-centered" v-if="meterStore.meterState == 1">
+          <h1 class="title is-2">
+            Warm Up LED
+          </h1>
+          <h2 class="subtitle is-4 has-text-grey-light">
+            Preparing for ignition.
+          </h2>
+        </div>
+
+        <div class="has-text-centered" v-if="meterStore.meterState == 2">
+          <h1 class="title is-2">
+            Ready!
+          </h1>
+          <h2 class="subtitle is-4 has-text-grey-light">
+            Please load your sample!
+          </h2>
+        </div>
+
+        <div class="has-text-centered" v-if="meterStore.meterState == 3">
           <h1 class="title is-2">
             {{ agtronScale }}
           </h1>

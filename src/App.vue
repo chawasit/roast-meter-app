@@ -29,7 +29,7 @@ const meterStore = useMeterStore();
         <div class="container">
           <div class="tabs is-centered">
             <ul>
-              <li><a>Roast Meter App v0.12</a></li>
+              <li><a>Roast Meter App v0.1.2</a></li>
             </ul>
           </div>
         </div>
@@ -38,14 +38,4 @@ const meterStore = useMeterStore();
   </main>
 </template>
 
-<style scoped>
-main {
-  max-height: 100vh;
-  height: 100%;
-  width: 100%;
-}
-
-.columns {
-  height: 100%;
-}
-</style>
+<style scoped></style>

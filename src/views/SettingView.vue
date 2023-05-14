@@ -26,7 +26,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="field">
-          <label class="label">LED Brightness</label>
+          <label class="label">LED Brightness Level</label>
           <div class="control">
             <input class="input" type="number" min="0" max="256" v-model="meterStore.ledBrightnessLevel">
           </div>
