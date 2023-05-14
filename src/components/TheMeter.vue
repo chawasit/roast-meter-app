@@ -98,10 +98,10 @@ const agtronScaleColor = computed(() => {
               <span class="mx-2">{{ agtronScale }}</span>
             </div>
           </h1>
-          <h2 class="subtitle is-4 has-text-grey-light">
+          <h2 class="subtitle is-4 has-text-grey-light mt-1">
             {{ agtronScaleDescription }}
           </h2>
-          <h3 class="subtitle is-4 has-text-grey-light">
+          <h3 class="subtitle is-4 has-text-grey">
             Raw: {{ meterStore.particleSensor }}
           </h3>
         </div>
