@@ -97,33 +97,38 @@ export const useMeterStore = defineStore('roastMeter', () => {
       return
     }
 
-    // Get the battery service:
-    console.log('getting setting service')
-    const meterSettingService = await server.value.getPrimaryService(UUID_SETTING_SERVICE)
+    try {
+      // Get the battery service:
+      console.log('getting setting service')
+      const meterSettingService = await server.value.getPrimaryService(UUID_SETTING_SERVICE)
 
-    console.log('getting setting characteristics')
-    // Get the current battery level
-    const ledBrightnessCharacteristic = await meterSettingService.getCharacteristic(
-      UUID_LED_BRIGHTNESS_LEVEL
-    )
-    const intersectionPointCharacteristic = await meterSettingService.getCharacteristic(
-      UUID_INTERSECTION_POINT
-    )
-    const deviationCharacteristic = await meterSettingService.getCharacteristic(UUID_DEVIATION)
-    const bleNameCharacteristic = await meterSettingService.getCharacteristic(UUID_BLE_NAME)
+      console.log('getting setting characteristics')
+      // Get the current battery level
+      const ledBrightnessCharacteristic = await meterSettingService.getCharacteristic(
+        UUID_LED_BRIGHTNESS_LEVEL
+      )
+      const intersectionPointCharacteristic = await meterSettingService.getCharacteristic(
+        UUID_INTERSECTION_POINT
+      )
+      const deviationCharacteristic = await meterSettingService.getCharacteristic(UUID_DEVIATION)
+      const bleNameCharacteristic = await meterSettingService.getCharacteristic(UUID_BLE_NAME)
 
-    // Convert received buffer to number:
-    const ledBrightnessValue = await ledBrightnessCharacteristic.readValue()
-    const intersectionPointValue = await intersectionPointCharacteristic.readValue()
-    const deviationValue = await deviationCharacteristic.readValue()
-    const bleNameValue = await bleNameCharacteristic.readValue()
+      // Convert received buffer to number:
+      const ledBrightnessValue = await ledBrightnessCharacteristic.readValue()
+      const intersectionPointValue = await intersectionPointCharacteristic.readValue()
+      const deviationValue = await deviationCharacteristic.readValue()
+      const bleNameValue = await bleNameCharacteristic.readValue()
 
-    ledBrightnessLevel.value = ledBrightnessValue.getUint8(0)
-    intersectionPoint.value = intersectionPointValue.getUint8(0)
-    deviation.value = deviationValue.getFloat32(0, true)
+      ledBrightnessLevel.value = ledBrightnessValue.getUint8(0)
+      intersectionPoint.value = intersectionPointValue.getUint8(0)
+      deviation.value = deviationValue.getFloat32(0, true)
 
-    const decoder = new TextDecoder()
-    bleName.value = decoder.decode(bleNameValue)
+      const decoder = new TextDecoder()
+      bleName.value = decoder.decode(bleNameValue)
+    } catch (error) {
+      console.error(error)
+      setTimeout(getMeterSetting, 1000);
+    }
 
     isGettingMeterSetting.value = false
   }
