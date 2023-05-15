@@ -34,6 +34,7 @@ onBeforeMount(() => {
               v-model="meterStore.ledBrightnessLevel"
             />
           </div>
+          <p class="help">Default 134</p>
         </div>
         <div class="field">
           <label class="label">Intersection Point</label>
@@ -46,18 +47,22 @@ onBeforeMount(() => {
               v-model="meterStore.intersectionPoint"
             />
           </div>
+          <p class="help">Default 117</p>
         </div>
         <div class="field">
           <label class="label">Deviation</label>
           <div class="control">
             <input class="input" type="number" step="0.001" v-model="meterStore.deviation" />
           </div>
+          <p class="help">Default 0.165</p>
         </div>
       </div>
       <footer class="card-footer">
         <a href="#" class="card-footer-item is-info" @click="meterStore.saveMeterSetting">Save</a>
       </footer>
     </div>
+
+    <p class="has-text-warning mt-2">{{ meterStore.error }}</p>
   </div>
 </template>
 

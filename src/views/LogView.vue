@@ -11,11 +11,10 @@ const user = useCurrentUser()
 <template>
   <div>
     <h1 v-if="user">Not Implement yet!</h1>
-    <section class="hero is-success">
+    <section class="hero">
       <div class="hero-body">
         <div class="container has-text-centered" v-if="!user">
           <div class="column is-4 is-offset-4">
-            <h3 class="title has-text-black">Login to Save Roast Profile</h3>
             <h2 class="subtitle has-text-black">Coming Soon</h2>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { pausableWatch, useBluetooth } from '@vueuse/core'
 
@@ -15,7 +15,7 @@ const UUID_DEVIATION = 'd17234fa-0f48-429a-9e9b-f5db774ef682'
 const UUID_BLE_NAME = 'cde44fd7-4c1e-42a0-8368-531dc87f6b56'
 
 export const useMeterStore = defineStore('roastMeter', () => {
-  const { isConnected, server, requestDevice } = useBluetooth({
+  const { server, requestDevice, error } = useBluetooth({
     filters: [{ services: [UUID_ROAST_METER_SERVICE] }],
     optionalServices: [UUID_SETTING_SERVICE]
   })
@@ -24,10 +24,10 @@ export const useMeterStore = defineStore('roastMeter', () => {
   const particleSensor = ref<number>(0)
   const meterState = ref<number>(0) // 0 setup, 1 warmup, 2 ready, 3 measured
 
-  const ledBrightnessLevel = ref<number>(0)
-  const intersectionPoint = ref<number>(0)
-  const deviation = ref<number>(0)
-  const bleName = ref<string>('Roast Meter xxxx')
+  const ledBrightnessLevel = ref<number>(134)
+  const intersectionPoint = ref<number>(117)
+  const deviation = ref<number>(0.165)
+  const bleName = ref<string>('Roast Meter')
 
   const isGettingMeterReading = ref(false)
   const isGettingMeterSetting = ref(false)
@@ -175,23 +175,13 @@ export const useMeterStore = defineStore('roastMeter', () => {
     await getMeterSetting()
   }
 
-  const subscribeMeterReading = async () => {
-    console.log('call subscribing')
-
-    const { stop } = pausableWatch(isConnected, (newIsConnected) => {
-      console.log(newIsConnected, server, isGettingMeterReading)
-      if (!newIsConnected || !server.value || isGettingMeterReading.value) return
-      // Attempt to get the battery levels of the device:
-      console.log('start subscribing')
-      getMeterReading()
-      // We only want to run this on the initial connection, as we will use an event listener to handle updates:
-      stop()
-    })
-  }
-
   function reset() {
     isGettingMeterReading.value = false
   }
+
+  const isConnected = computed<boolean>(() => {
+    return server.value && server.value.connected
+  })
 
   return {
     requestDevice,
@@ -204,9 +194,9 @@ export const useMeterStore = defineStore('roastMeter', () => {
     deviation,
     bleName,
     isConnected,
+    error,
     getMeterSetting,
     getMeterReading,
-    subscribeMeterReading,
     saveMeterSetting
   }
 })
