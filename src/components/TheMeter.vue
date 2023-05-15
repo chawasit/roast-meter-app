@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useMeterStore } from '@/stores/roastMeter';
-import { onMounted, computed } from 'vue';
+import { useMeterStore } from '@/stores/roastMeter'
+import { onMounted, computed } from 'vue'
 
-const meterStore = useMeterStore();
+const meterStore = useMeterStore()
 
 onMounted(() => {
-  console.log("Mounted subscribe meter reading!")
-  meterStore.getMeterReading();
+  console.log('Mounted subscribe meter reading!')
+  meterStore.getMeterReading()
 })
 
 const agtronScale = computed(() => {
@@ -14,39 +14,42 @@ const agtronScale = computed(() => {
 })
 
 const agtronScaleDescription = computed(() => {
-  if (meterStore.agtron <= 20) return "Overdeveloped"
-  if (meterStore.agtron <= 30) return "SCAA: Very Dark (Italian)"
-  if (meterStore.agtron < 40) return "SCAA: Dark (French)"
-  if (meterStore.agtron < 50) return "SCAA: Medium Dark (Full City)"
-  if (meterStore.agtron < 60) return "SCAA: Medium (City)"
-  if (meterStore.agtron < 70) return "SCAA: Medium Light (High)"
-  if (meterStore.agtron < 80) return "SCAA: Light (Medium)"
-  if (meterStore.agtron < 90) return "SCAA: Very Light (Cinnamon)"
-  if (meterStore.agtron < 100) return "SCAA: Extremely Light (Light)"
+  if (meterStore.agtron <= 20) return 'Overdeveloped'
+  if (meterStore.agtron <= 30) return 'Very Dark (Italian)'
+  if (meterStore.agtron < 40) return 'Dark (French)'
+  if (meterStore.agtron < 50) return 'Medium Dark (Full City)'
+  if (meterStore.agtron < 60) return 'Medium (City)'
+  if (meterStore.agtron < 70) return 'Medium Light (High)'
+  if (meterStore.agtron < 80) return 'Light (Medium)'
+  if (meterStore.agtron < 90) return 'Very Light (Cinnamon)'
+  if (meterStore.agtron < 100) return 'Extremely Light (Light)'
 
-  return "Underdeveloped"
+  return 'Underdeveloped'
 })
 
 const agtronScaleColor = computed(() => {
-  if (meterStore.agtron <= 20) return "#0B0806"
-  if (meterStore.agtron <= 30) return "#160F0D"
-  if (meterStore.agtron < 40) return "#211713"
-  if (meterStore.agtron < 50) return "#2C1E19"
-  if (meterStore.agtron < 60) return "#362620"
-  if (meterStore.agtron < 70) return "#412E26"
-  if (meterStore.agtron < 80) return "#4C352C"
-  if (meterStore.agtron < 90) return "#573D32"
-  if (meterStore.agtron < 100) return "#624439"
+  if (meterStore.agtron <= 20) return '#0B0806'
+  if (meterStore.agtron <= 30) return '#160F0D'
+  if (meterStore.agtron < 40) return '#211713'
+  if (meterStore.agtron < 50) return '#2C1E19'
+  if (meterStore.agtron < 60) return '#362620'
+  if (meterStore.agtron < 70) return '#412E26'
+  if (meterStore.agtron < 80) return '#4C352C'
+  if (meterStore.agtron < 90) return '#573D32'
+  if (meterStore.agtron < 100) return '#624439'
 
-  return "#6D4C3F"
+  return '#6D4C3F'
 })
 </script>
 
 <template>
   <div class="container is-fluid">
     <div class="columns is-vcentered">
-      <div class="column is-5 ">
-        <div class="is-align-items-center is-flex is-flex-direction-column" v-if="meterStore.meterState == 0">
+      <div class="column is-5">
+        <div
+          class="is-align-items-center is-flex is-flex-direction-column"
+          v-if="meterStore.meterState == 0"
+        >
           <h1 class="title is-2">
             <div class="icon-text">
               <span class="icon has-text-info">
@@ -55,12 +58,13 @@ const agtronScaleColor = computed(() => {
               <span>Setting Up</span>
             </div>
           </h1>
-          <h2 class="subtitle is-4 has-text-grey-light">
-            Preparing liquid oxygen.
-          </h2>
+          <h2 class="subtitle is-4 has-text-grey-light mt-1">Preparing liquid oxygen.</h2>
         </div>
 
-        <div class="is-align-items-center is-flex is-flex-direction-column" v-if="meterStore.meterState == 1">
+        <div
+          class="is-align-items-center is-flex is-flex-direction-column"
+          v-if="meterStore.meterState == 1"
+        >
           <h1 class="title is-2">
             <div class="icon-text">
               <span class="icon has-text-danger">
@@ -69,12 +73,13 @@ const agtronScaleColor = computed(() => {
               <span>Warm Up</span>
             </div>
           </h1>
-          <h2 class="subtitle is-4 has-text-grey-light">
-            Preparing for ignition.
-          </h2>
+          <h2 class="subtitle is-4 has-text-grey-light mt-1">Preparing for ignition.</h2>
         </div>
 
-        <div class="is-align-items-center is-flex is-flex-direction-column" v-if="meterStore.meterState == 2">
+        <div
+          class="is-align-items-center is-flex is-flex-direction-column"
+          v-if="meterStore.meterState == 2"
+        >
           <h1 class="title is-2">
             <div class="icon-text">
               <span class="icon has-text-success">
@@ -83,16 +88,16 @@ const agtronScaleColor = computed(() => {
               <span>Ready!</span>
             </div>
           </h1>
-          <h2 class="subtitle is-4 has-text-grey-light">
-            Please load your sample.
-          </h2>
+          <h2 class="subtitle is-4 has-text-grey-light mt-1">Please load your sample.</h2>
         </div>
 
-        <div class="is-align-items-center is-flex is-flex-direction-column" v-if="meterStore.meterState == 3">
+        <div
+          class="is-align-items-center is-flex is-flex-direction-column"
+          v-if="meterStore.meterState == 3"
+        >
           <h1 class="title is-2">
             <div class="icon-text">
               <span class="icon" :style="[{ color: agtronScaleColor }]">
-                <!-- <i class="fa-solid fa-spinner fa-spin fa-pulse"></i> -->
                 <i class="fa-solid fa-compass fa-spin"></i>
               </span>
               <span class="mx-2">{{ agtronScale }}</span>
@@ -101,23 +106,25 @@ const agtronScaleColor = computed(() => {
           <h2 class="subtitle is-4 has-text-grey-light mt-1">
             {{ agtronScaleDescription }}
           </h2>
-          <h3 class="subtitle is-4 has-text-grey">
-            Raw: {{ meterStore.particleSensor }}
-          </h3>
+          <h3 class="subtitle is-4 has-text-grey">Raw: {{ meterStore.particleSensor }}</h3>
         </div>
       </div>
       <div class="column is-6 is-offset-1">
         <div class="tabs is-centered">
           <ul>
             <RouterLink v-slot="{ isActive, href, navigate }" custom to="/">
-              <li :class="[isActive && 'is-active']"><a :href="href" @click="navigate">Logging</a></li>
+              <li :class="[isActive && 'is-active']">
+                <a :href="href" @click="navigate">Logging</a>
+              </li>
             </RouterLink>
             <RouterLink v-slot="{ isActive, href, navigate }" custom to="/setting">
-              <li :class="[isActive && 'is-active']"><a :href="href" @click="navigate">Setting</a></li>
+              <li :class="[isActive && 'is-active']">
+                <a :href="href" @click="navigate">Setting</a>
+              </li>
             </RouterLink>
           </ul>
         </div>
-        <div style="overflow: auto; min-height: 70vh;">
+        <div style="overflow: auto; min-height: 70vh">
           <RouterView />
         </div>
       </div>

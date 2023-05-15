@@ -46,11 +46,9 @@ export const useMeterStore = defineStore('roastMeter', () => {
     // Get the current battery level
     const agtronCharacteristic = await meterService.getCharacteristic(UUID_AGTRON)
     const particleCharacteristic = await meterService.getCharacteristic(UUID_PARTICLE_SENSOR)
-    const meterStateCharacteristic = await meterService.getCharacteristic(UUID_METER_STATE)
 
     await agtronCharacteristic.startNotifications()
     await particleCharacteristic.startNotifications()
-    await meterStateCharacteristic.startNotifications()
 
     // Listen to when characteristic value changes on `characteristicvaluechanged` event:
     agtronCharacteristic.addEventListener('characteristicvaluechanged', (event: any) => {
@@ -61,18 +59,28 @@ export const useMeterStore = defineStore('roastMeter', () => {
       particleSensor.value = event.target.value.getUint32(0)
     })
 
-    meterStateCharacteristic.addEventListener('characteristicvaluechanged', (event: any) => {
-      meterState.value = event.target.value.getUint8(0)
-    })
-
     // Convert received buffer to number:
     const agtronValue = await agtronCharacteristic.readValue()
     const particleSensorValue = await particleCharacteristic.readValue()
-    const meterStateValue = await meterStateCharacteristic.readValue()
 
     agtron.value = agtronValue.getUint8(0)
     particleSensor.value = particleSensorValue.getUint32(0)
-    meterStateValue.value = meterStateValue.getUint8(0)
+
+    try {
+      const meterStateCharacteristic = await meterService.getCharacteristic(UUID_METER_STATE)
+
+      meterStateCharacteristic.addEventListener('characteristicvaluechanged', (event: any) => {
+        meterState.value = event.target.value.getUint8(0)
+      })
+      await meterStateCharacteristic.startNotifications()
+
+      const meterStateValue = await meterStateCharacteristic.readValue()
+      meterState.value = meterStateValue.getUint8(0)
+    } catch (error) {
+      console.log('Old Firmware!: No Meter State')
+
+      meterState.value = 3
+    }
   }
 
   async function getMeterSetting() {
@@ -112,9 +120,10 @@ export const useMeterStore = defineStore('roastMeter', () => {
 
     ledBrightnessLevel.value = ledBrightnessValue.getUint8(0)
     intersectionPoint.value = intersectionPointValue.getUint8(0)
-    deviation.value = deviationValue.getFloat32(0)
-    const decoder = new TextDecoder('utf-8')
-    bleName.value = decoder.decode(bleNameValue.buffer)
+    deviation.value = deviationValue.getFloat(0)
+
+    const decoder = new TextDecoder()
+    bleName.value = decoder.decode(bleNameValue)
 
     isGettingMeterSetting.value = false
   }
@@ -155,13 +164,15 @@ export const useMeterStore = defineStore('roastMeter', () => {
 
     buffer = new ArrayBuffer(4)
     dataView = new DataView(buffer)
-    dataView.setFloat32(0, deviation.value)
+    dataView.setFloat32(0, deviation.value, true)
     await deviationCharacteristic.writeValueWithResponse(buffer)
 
     const encoder = new TextEncoder()
     await bleNameCharacteristic.writeValueWithResponse(encoder.encode(bleName.value))
 
     console.log('setting characteristics written')
+
+    await getMeterSetting()
   }
 
   const subscribeMeterReading = async () => {
