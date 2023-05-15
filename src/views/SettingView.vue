@@ -34,7 +34,7 @@ onBeforeMount(() => {
               v-model="meterStore.ledBrightnessLevel"
             />
           </div>
-          <p class="help">Default 134</p>
+          <p class="help">Default 135</p>
         </div>
         <div class="field">
           <label class="label">Intersection Point</label>
