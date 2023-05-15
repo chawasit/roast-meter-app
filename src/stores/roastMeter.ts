@@ -120,7 +120,7 @@ export const useMeterStore = defineStore('roastMeter', () => {
 
     ledBrightnessLevel.value = ledBrightnessValue.getUint8(0)
     intersectionPoint.value = intersectionPointValue.getUint8(0)
-    deviation.value = deviationValue.getFloat(0)
+    deviation.value = deviationValue.getFloat32(0, true)
 
     const decoder = new TextDecoder()
     bleName.value = decoder.decode(bleNameValue)

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useMeterStore } from '@/stores/roastMeter';
-
+import { useBluetooth } from '@vueuse/core';
 const meterStore = useMeterStore();
+const { error } = useBluetooth();
 </script>
 
 <template>
@@ -22,6 +23,7 @@ const meterStore = useMeterStore();
       <a class="button is-medium is-primary" @click="meterStore.requestDevice">
         Connect Your Roast Meter
       </a>
+      <p class="has-text-red" v-if="error">{{ error }}</p>
     </p>
   </div>
 </template>

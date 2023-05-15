@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useMeterStore } from '@/stores/roastMeter'
-import { onMounted } from 'vue'
+import { onBeforeMount } from 'vue'
 
 const meterStore = useMeterStore()
 
-onMounted(() => {
-  console.log('Mounted get meter setting')
+onBeforeMount(() => {
+  console.log('BeforeMount: get meter setting')
   meterStore.getMeterSetting()
 })
 </script>
