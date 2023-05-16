@@ -38,7 +38,7 @@ router.beforeEach((to, from, next) => {
   const user = useCurrentUser()
   const meterStore = useMeterStore()
 
-  if (to.name !== 'login' && to.name !== 'meter' && !user.value) {
+  if (to.name !== 'login' && to.name !== 'meter' && to.name !== 'setting' && !user.value) {
     next({ name: 'login' })
     return;
   }
