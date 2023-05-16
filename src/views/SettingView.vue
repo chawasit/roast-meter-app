@@ -11,7 +11,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div>
+  <div class="container">
     <div class="card">
       <header class="card-header">
         <p class="card-header-title">Device</p>
@@ -26,26 +26,14 @@ onBeforeMount(() => {
         <div class="field">
           <label class="label">LED Brightness Level</label>
           <div class="control">
-            <input
-              class="input"
-              type="number"
-              min="0"
-              max="256"
-              v-model="meterStore.ledBrightnessLevel"
-            />
+            <input class="input" type="number" min="0" max="256" v-model="meterStore.ledBrightnessLevel" />
           </div>
           <p class="help">Default 135</p>
         </div>
         <div class="field">
           <label class="label">Intersection Point</label>
           <div class="control">
-            <input
-              class="input"
-              type="number"
-              min="0"
-              max="256"
-              v-model="meterStore.intersectionPoint"
-            />
+            <input class="input" type="number" min="0" max="256" v-model="meterStore.intersectionPoint" />
           </div>
           <p class="help">Default 117</p>
         </div>

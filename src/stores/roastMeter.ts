@@ -177,6 +177,7 @@ export const useMeterStore = defineStore('roastMeter', () => {
 
     console.log('setting characteristics written')
 
+    alert('Saved')
     await getMeterSetting()
   }
 
