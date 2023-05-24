@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { useCurrentUser, useCollection, useFirestore } from 'vuefire'
+import { useCurrentUser, useFirestore } from 'vuefire'
 import { ref } from 'vue';
-import { useMeterStore } from '@/stores/roastMeter';
-import { collection, where, query, serverTimestamp, Timestamp, addDoc } from 'firebase/firestore';
-import { routeLocationKey, useRoute, useRouter } from 'vue-router';
+import { collection, serverTimestamp, addDoc } from 'firebase/firestore';
+import { useRoute, useRouter } from 'vue-router';
+import { logEvent } from "firebase/analytics";
+import { analytics } from '@/firebase';
+import { onMounted } from 'vue';
 
 const db = useFirestore()
 const user = useCurrentUser()
@@ -40,6 +42,10 @@ const formSave = async () => {
   // Cancel Form After Saved
   formCancel()
 }
+
+onMounted(() => {
+  logEvent(analytics, "meter_setting");
+});
 
 </script>
 

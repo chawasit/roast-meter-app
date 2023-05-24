@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useMeterStore } from '@/stores/roastMeter'
 import { onBeforeMount } from 'vue'
+import { logEvent } from "firebase/analytics";
+import { analytics } from '@/firebase';
+import { onMounted } from 'vue';
 
 const meterStore = useMeterStore()
 
@@ -8,6 +11,10 @@ onBeforeMount(() => {
   console.log('BeforeMount: get meter setting')
   meterStore.getMeterSetting()
 })
+
+onMounted(() => {
+  logEvent(analytics, "meter_setting");
+});
 </script>
 
 <template>

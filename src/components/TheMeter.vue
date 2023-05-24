@@ -4,11 +4,15 @@ import { useMeterStore } from '@/stores/roastMeter'
 import { ref } from 'vue';
 import { onMounted, computed } from 'vue'
 import { useCurrentUser } from 'vuefire';
+import { logEvent } from "firebase/analytics";
+import { analytics } from '@/firebase';
+const meterStore = useMeterStore();
 
-const meterStore = useMeterStore()
 const user = useCurrentUser()
 
 onMounted(() => {
+  logEvent(analytics, "the_meter");
+
   console.log('Mounted subscribe meter reading!')
   meterStore.getMeterReading()
 })
